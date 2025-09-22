@@ -10,7 +10,7 @@
 - 🗺️ **マインドマップ構造**: 複雑なLLMリクエスト用の構造化JSONファイルを作成
 - 📅 **自動整理**: 日付ベースのフォルダ構造で自動保存
 - 🎯 **テンプレートベース**: すべてのLLMインタラクションで一貫した構造
-- ⚡ **高速生成**: コマンドラインから数秒でテンプレート作成
+- ⚡ **高速生成**: VS Code Tasksから数秒でテンプレート作成
 - 🔧 **エディタ統合**: 作成したファイルを自動で好みのエディタで開く
 - 🔄 **ユニークID**: 各テンプレートに一意の識別子とタイムスタンプを生成
 
@@ -44,12 +44,7 @@
    chmod +x km_template_generator.py
    ```
 
-2. **VS Code Mind Map拡張機能をインストール**
-   - **拡張機能名**: Mind Map
-   - **ID**: `oorzc.mind-map`
-   - **リンク**: [Open VSX](https://open-vsx.org/extension/oorzc/mind-map)
-
-3. **手動でVS Code Tasksを設定**
+2. **手動でVS Code Tasksを設定**
    - プロジェクトルートに `.vscode/tasks.json` を作成
    - 詳細は `install.sh` の内容を参照
 
@@ -67,6 +62,11 @@
 ## 📋 KMファイルとは？
 
 KMファイルは**VS Code Mind Map拡張機能用のマインドマップ表示形式**（JSON）です。本来はマインドマップの可視化のためのファイル形式ですが、このツールでは**LLMへの依頼を構造化して整理する**目的で活用しています。
+
+1. **VS Code Mind Map拡張機能をインストール**
+   - **拡張機能名**: Mind Map
+   - **ID**: `oorzc.mind-map`
+   - **リンク**: [Open VSX](https://open-vsx.org/extension/oorzc/mind-map)
 
 ### 活用方法
 - **メインリクエスト**: 主要なタスクや質問
@@ -134,10 +134,7 @@ VS Code Mind Map拡張機能の**KMファイル（マインドマップ形式）
 ### 📋 ステップバイステップガイド
 
 #### **Step 1: KMテンプレート生成**
-```bash
-# このツールでKMファイルを生成
-create-km "データ分析の手伝い"
-```
+VS Code で `Tasks: Run Task` → `Create KM Template` を選択し、タイトルを入力
 
 #### **Step 2: VS Code Mind Map拡張機能のインストール**
 - **Cursor/VS Code拡張機能**: [oorzc.mind-map](https://open-vsx.org/extension/oorzc/mind-map)
@@ -329,7 +326,6 @@ def create_km_template(title):
 ```
 km-template-generator/
 ├── km_template_generator.py    # メインスクリプト
-├── create_km.sh               # シェルラッパー
 ├── install.sh                 # インストーラー（Tasks設定を自動適用）
 ├── README.md               # 日本語版README（このファイル）
 └── LICENSE                    # MITライセンス
@@ -344,11 +340,7 @@ km-template-generator/
    chmod +x km_template_generator.py
    ```
 
-2. **エディタが開かない**
-   - VS Codeをインストールし、`code` コマンドが利用可能であることを確認
-   - または好みのエディタを使用するようスクリプトを修正
-
-3. **"Flow directory not found"**
+2. **"Flow directory not found"**
    - スクリプトが自動でディレクトリ構造を作成します
    - 対象場所のファイル権限を確認
 
