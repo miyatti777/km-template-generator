@@ -197,6 +197,93 @@ setup_alias() {
 }
 
 # =============================================================================
+# VS Code Tasks 設定
+# =============================================================================
+
+update_vscode_tasks() {
+    local install_dir="$1"
+    
+    log_info "VS Code Tasks を設定します (.vscode/tasks.json)"
+    
+    # デフォルトのプロジェクトルートを推定（git ルート > 現在の親ディレクトリ > 現在ディレクトリ）
+    local default_project_root
+    if command -v git >/dev/null 2>&1; then
+        default_project_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
+    fi
+    if [ -z "$default_project_root" ]; then
+        default_project_root="$(pwd)"
+    fi
+    
+    echo -n "プロジェクトルート（.vscode を作成する場所）を入力 [Enterで: $default_project_root]: "
+    read -r project_root
+    if [ -z "$project_root" ]; then
+        project_root="$default_project_root"
+    fi
+    
+    local vscode_dir="$project_root/.vscode"
+    local tasks_file="$vscode_dir/tasks.json"
+    mkdir -p "$vscode_dir"
+    
+    # 絶対パスの Python スクリプト
+    local py_abs="$install_dir/km_template_generator.py"
+    
+    # 既存をバックアップ
+    if [ -f "$tasks_file" ]; then
+        cp "$tasks_file" "$tasks_file.backup.$(date +%Y%m%d_%H%M%S)"
+        log_info "既存 tasks.json をバックアップしました"
+    fi
+    
+    # Python で安全にマージ
+    python3 - "$tasks_file" "$py_abs" << 'PYJSON'
+import json, sys, os
+tasks_path = sys.argv[1]
+py_path = sys.argv[2]
+
+data = {"version": "2.0.0", "tasks": [], "inputs": []}
+if os.path.exists(tasks_path):
+    try:
+        with open(tasks_path, 'r', encoding='utf-8') as f:
+            loaded = json.load(f)
+            if isinstance(loaded, dict):
+                data.update(loaded)
+    except Exception:
+        pass
+
+data.setdefault("tasks", [])
+data.setdefault("inputs", [])
+
+# 既存の同名タスク/入力を削除
+data["tasks"] = [t for t in data["tasks"] if t.get("label") != "Create KM Template"]
+data["inputs"] = [i for i in data["inputs"] if i.get("id") != "kmTitle"]
+
+task = {
+    "label": "Create KM Template",
+    "type": "shell",
+    "command": "python3",
+    "args": [py_path, "${input:kmTitle}"],
+    "group": "build",
+    "presentation": {"echo": True, "reveal": "always", "focus": False, "panel": "new"},
+    "problemMatcher": []
+}
+
+inp = {
+    "id": "kmTitle",
+    "description": "KMファイルのタイトルを入力してください",
+    "default": "新しい依頼",
+    "type": "promptString"
+}
+
+data["tasks"].append(task)
+data["inputs"].append(inp)
+
+with open(tasks_path, 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+PYJSON
+    
+    log_success "VS Code Tasks を更新しました: $tasks_file"
+}
+
+# =============================================================================
 # 設定ファイル作成
 # =============================================================================
 
@@ -296,12 +383,15 @@ main() {
     # テンプレート変数の修正
     fix_template_variables "$install_dir"
     
-    # エイリアス設定
-    setup_alias "$install_dir" "$shell_type" "$config_file"
+    # エイリアス設定（デフォルト無効・READMEで案内）
+    log_info "エイリアス設定はデフォルト無効です（READMEを参照して手動設定できます）"
     
     # 設定ファイル作成
     create_config_file "$install_dir"
     
+    # VS Code Tasks 設定（デフォルト）
+    update_vscode_tasks "$install_dir"
+
     # テスト実行
     if ! test_installation "$install_dir"; then
         log_error "インストールテストに失敗しました"
@@ -313,15 +403,13 @@ main() {
     echo "🎉 インストールが完了しました！"
     echo "================================"
     echo ""
-    log_success "使用方法:"
-    echo "  1. ターミナルを再起動するか、以下を実行:"
-    echo "     source $config_file"
+    log_success "使用方法 (VS Code Tasks 推奨):"
+    echo "  1. VS Code/Cursor を開く"
+    echo "  2. Cmd/Ctrl+Shift+P → 'Tasks: Run Task'"
+    echo "  3. 'Create KM Template' を選択"
+    echo "  4. タイトルを入力して実行"
     echo ""
-    echo "  2. 以下のコマンドでKMファイルを作成:"
-    echo "     create-km"
-    echo "     create-km \"カスタムタイトル\""
-    echo ""
-    echo "  3. 直接実行も可能:"
+    echo "  ※ ターミナルから直接実行する場合:"
     echo "     $install_dir/create_km.sh \"タイトル\""
     echo ""
     log_info "設定ファイル: $install_dir/km_config.json"
