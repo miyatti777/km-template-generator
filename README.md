@@ -33,8 +33,7 @@
    - ✅ Pythonスクリプトをユーザー指定場所に配置
    - ✅ KMファイル出力先の設定
    - ✅ VS Code Tasks の設定（既存ファイルを安全に更新）
-   - ✅ VS Code Mind Map拡張機能のインストール促進
-   - ✅ エイリアス設定（オプション）
+   - ✅ VS Code Mind Map拡張機能の手動インストール手順の案内
 
 ### 🔧 手動インストール
 
@@ -62,12 +61,7 @@
 4. **依頼タイトルを入力** (例: "データ分析の手伝い")
 5. **自動でKMファイルが作成され、エディタで開かれます**
 
-### 🎯 その他の使用方法
-
-- **コマンドライン**: `python3 km_template_generator.py "タイトル"`
-- **エイリアス**: `create-km "タイトル"`（インストール時に設定した場合）
-- **シェルスクリプト**: `./create_km.sh "タイトル"`
-
+※ 実行方法は VS Code の "Tasks: Run Task" のみをサポートします（その他の方法は非推奨）
 これで VS Code から簡単にKMテンプレートを作成できます！
 
 ## 📋 KMファイルとは？
@@ -336,7 +330,7 @@ def create_km_template(title):
 km-template-generator/
 ├── km_template_generator.py    # メインスクリプト
 ├── create_km.sh               # シェルラッパー
-├── setup_km_alias.sh          # エイリアス設定スクリプト
+├── install.sh                 # インストーラー（Tasks設定を自動適用）
 ├── README.md               # 日本語版README（このファイル）
 └── LICENSE                    # MITライセンス
 ```

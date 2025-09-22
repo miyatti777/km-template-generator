@@ -383,8 +383,8 @@ main() {
     # テンプレート変数の修正
     fix_template_variables "$install_dir"
     
-    # エイリアス設定（デフォルト無効・READMEで案内）
-    log_info "エイリアス設定はデフォルト無効です（READMEを参照して手動設定できます）"
+    # エイリアス設定はサポート対象外
+    log_info "エイリアス設定はサポート外です（Run Taskのみを公式手段とします）"
     
     # 設定ファイル作成
     create_config_file "$install_dir"
@@ -403,14 +403,13 @@ main() {
     echo "🎉 インストールが完了しました！"
     echo "================================"
     echo ""
-    log_success "使用方法 (VS Code Tasks 推奨):"
+    log_success "使用方法 (VS Code Tasks のみ):"
     echo "  1. VS Code/Cursor を開く"
     echo "  2. Cmd/Ctrl+Shift+P → 'Tasks: Run Task'"
     echo "  3. 'Create KM Template' を選択"
     echo "  4. タイトルを入力して実行"
     echo ""
-    echo "  ※ ターミナルから直接実行する場合:"
-    echo "     $install_dir/create_km.sh \"タイトル\""
+    echo "  ※ その他の実行方法（エイリアス/直接実行など）は非推奨・サポート対象外です"
     echo ""
     log_info "設定ファイル: $install_dir/km_config.json"
     log_info "ログ: 問題が発生した場合は、上記の設定を確認してください"
