@@ -289,6 +289,7 @@ PYJSON
 
 create_config_file() {
     local install_dir="$1"
+    local project_root="$2"
     local config_file="$install_dir/km_config.json"
     
     log_info "設定ファイルを作成しています..."
@@ -297,7 +298,7 @@ create_config_file() {
 {
     "version": "1.0.0",
     "install_path": "$install_dir",
-    "flow_base_path": "$install_dir/Flow",
+    "flow_base_path": "$project_root/Flow",
     "default_theme": "fresh-blue",
     "auto_open_editor": true,
     "editor_priority": ["cursor", "code"],
@@ -386,8 +387,27 @@ main() {
     # エイリアス設定はサポート対象外
     log_info "エイリアス設定はサポート外です（Run Taskのみを公式手段とします）"
     
+    # プロジェクトルートの取得（km-template-generatorの親ディレクトリ）
+    local project_root
+    if command -v git >/dev/null 2>&1; then
+        # Gitルートを取得
+        local git_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
+        if [ -n "$git_root" ] && [ "$(basename "$git_root")" = "km-template-generator" ]; then
+            # km-template-generatorリポジトリ内の場合は親ディレクトリを使用
+            project_root="$(dirname "$git_root")"
+        else
+            project_root="$git_root"
+        fi
+    fi
+    if [ -z "$project_root" ]; then
+        # Gitが使えない場合は、install_dirの親ディレクトリを使用
+        project_root="$(dirname "$install_dir")"
+    fi
+    
+    log_info "プロジェクトルート: $project_root"
+    
     # 設定ファイル作成
-    create_config_file "$install_dir"
+    create_config_file "$install_dir" "$project_root"
     
     # VS Code Tasks 設定（デフォルト）
     update_vscode_tasks "$install_dir"
