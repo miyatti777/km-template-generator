@@ -2,7 +2,7 @@
 
 # KMファイル作成コマンドのエイリアス設定スクリプト
 
-SCRIPT_PATH="{{INSTALL_PATH}}/create_km.sh"
+SCRIPT_PATH="/Users/daisukemiyata/test_km_gen2/km-template-generator/create_km.sh"
 
 echo "🔧 KMファイル作成コマンドのエイリアスを設定します..."
 

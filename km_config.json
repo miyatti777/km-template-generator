@@ -1,0 +1,17 @@
+{
+    "version": "1.0.0",
+    "install_path": "/Users/daisukemiyata/test_km_gen2/km-template-generator",
+    "flow_base_path": "/Users/daisukemiyata/test_km_gen2/km-template-generator/Flow",
+    "default_theme": "dark",
+    "auto_open_editor": true,
+    "editor_priority": ["cursor", "code"],
+    "template_structure": {
+        "root_prefix": "依頼：",
+        "default_children": [
+            "コンテキスト：",
+            "詳細指示",
+            "出力形式",
+            "補足"
+        ]
+    }
+}
