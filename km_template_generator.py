@@ -44,7 +44,7 @@ class KMConfig:
         default_config = {
             "version": "1.0.0",
             "install_path": str(script_dir),
-            "flow_base_path": str(script_dir / "Flow"),
+            "flow_base_path": "/Users/daisukemiyata/aipm_v3/Flow",
             "default_theme": "fresh-blue",
             "auto_open_editor": True,
             "editor_priority": ["cursor", "code"],
@@ -85,7 +85,7 @@ class KMConfig:
         return {
             "version": "1.0.0",
             "install_path": str(script_dir),
-            "flow_base_path": str(script_dir / "Flow"),
+            "flow_base_path": "/Users/daisukemiyata/aipm_v3/Flow",
             "default_theme": "fresh-blue",
             "auto_open_editor": True,
             "editor_priority": ["cursor", "code"],
@@ -226,7 +226,7 @@ def create_km_template(title="新しい依頼", output_path=None, config=None):
         flow_base_path = config.get('flow_base_path')
         if not flow_base_path:
             # フォールバック: スクリプトディレクトリ
-            flow_base_path = str(Path(__file__).parent / "Flow")
+            flow_base_path = "/Users/daisukemiyata/aipm_v3/Flow"
         
         flow_dir = Path(flow_base_path) / year_month / today
         flow_dir.mkdir(parents=True, exist_ok=True)

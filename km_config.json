@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "install_path": "/Users/daisukemiyata/aipm_v3/Stock/programs/Tools/projects/km-template-generator",
-    "flow_base_path": "/Users/daisukemiyata/aipm_v3/Stock/programs/Tools/projects/km-template-generator/Flow",
+    "flow_base_path": "/Users/daisukemiyata/aipm_v3/Flow",
     "default_theme": "fresh-blue",
     "auto_open_editor": true,
     "editor_priority": ["cursor", "code"],
