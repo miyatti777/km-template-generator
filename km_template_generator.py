@@ -9,6 +9,8 @@ import os
 import sys
 import time
 import random
+import subprocess
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -18,6 +20,84 @@ def generate_unique_id():
     timestamp = int(time.time() * 1000)
     random_part = random.randint(1000, 9999)
     return f"{hex(timestamp)[2:]}{hex(random_part)[2:]}"
+
+
+def detect_environment():
+    """現在の実行環境を検出"""
+    # 環境変数をチェック
+    if 'CURSOR_SESSION_ID' in os.environ or 'CURSOR_USER_DATA' in os.environ:
+        return 'cursor'
+    elif 'VSCODE_PID' in os.environ or 'VSCODE_IPC_HOOK' in os.environ:
+        return 'vscode'
+    elif 'TERM_PROGRAM' in os.environ:
+        term_program = os.environ['TERM_PROGRAM'].lower()
+        if 'cursor' in term_program:
+            return 'cursor'
+        elif 'vscode' in term_program:
+            return 'vscode'
+    
+    # プロセス名から推測
+    try:
+        result = subprocess.run(['ps', 'aux'], capture_output=True, text=True)
+        if 'Cursor' in result.stdout:
+            return 'cursor'
+        elif 'Code' in result.stdout and 'Visual Studio Code' in result.stdout:
+            return 'vscode'
+    except:
+        pass
+    
+    return 'unknown'
+
+
+def check_command_available(command):
+    """コマンドが利用可能かチェック"""
+    return shutil.which(command) is not None
+
+
+def open_with_appropriate_editor(file_path):
+    """環境に応じて適切なエディタでファイルを開く"""
+    environment = detect_environment()
+    
+    # 環境に応じた優先順位でエディタを試行
+    if environment == 'cursor':
+        editors = ['cursor', 'code']
+        print("🎯 Cursor環境を検出しました")
+    elif environment == 'vscode':
+        editors = ['code', 'cursor']
+        print("🎯 VS Code環境を検出しました")
+    else:
+        editors = ['cursor', 'code']
+        print("🔍 環境を自動検出中...")
+    
+    # 各エディタを順番に試行
+    for editor in editors:
+        if check_command_available(editor):
+            try:
+                subprocess.run([editor, file_path], check=False)
+                print(f"📝 {editor}でファイルを開きました")
+                return True
+            except Exception as e:
+                print(f"⚠️  {editor}での起動に失敗: {e}")
+                continue
+    
+    # すべて失敗した場合はデフォルトアプリで開く
+    try:
+        if sys.platform == 'darwin':  # macOS
+            subprocess.run(['open', file_path], check=False)
+            print("📝 デフォルトアプリでファイルを開きました")
+            return True
+        elif sys.platform == 'linux':
+            subprocess.run(['xdg-open', file_path], check=False)
+            print("📝 デフォルトアプリでファイルを開きました")
+            return True
+        elif sys.platform == 'win32':
+            os.startfile(file_path)
+            print("📝 デフォルトアプリでファイルを開きました")
+            return True
+    except Exception as e:
+        print(f"⚠️  デフォルトアプリでの起動に失敗: {e}")
+    
+    return False
 
 
 def create_km_template(title="新しい依頼", output_path=None):
@@ -36,7 +116,7 @@ def create_km_template(title="新しい依頼", output_path=None):
     if output_path is None:
         today = datetime.now().strftime("%Y-%m-%d")
         year_month = datetime.now().strftime("%Y%m")
-        flow_dir = Path(f"/Users/daisukemiyata/aipm_v3/Flow/{year_month}/{today}")
+        flow_dir = Path(f"{{FLOW_BASE_PATH}}/Flow/{year_month}/{today}")
         flow_dir.mkdir(parents=True, exist_ok=True)
         
         # ファイル名の生成（重複回避）
@@ -151,14 +231,10 @@ def main():
         file_path = create_km_template(title)
         print(f"✅ KMファイルを作成しました: {file_path}")
         
-        # エディタで開く（VS Codeまたはデフォルトエディタ）
-        try:
-            os.system(f'code "{file_path}"')
-        except:
-            try:
-                os.system(f'open "{file_path}"')
-            except:
-                pass  # エディタが開けない場合はスキップ
+        # 環境に応じて適切なエディタで開く
+        opened = open_with_appropriate_editor(file_path)
+        if not opened:
+            print("💡 ファイルを手動で開いてください")
         
     except Exception as e:
         print(f"❌ エラーが発生しました: {e}")
