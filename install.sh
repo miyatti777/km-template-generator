@@ -153,48 +153,10 @@ fix_template_variables() {
         fi
     fi
     
-    # setup_km_alias.shの修正
-    local alias_script="$install_dir/setup_km_alias.sh"
-    if [ -f "$alias_script" ]; then
-        if grep -q "{{INSTALL_PATH}}" "$alias_script"; then
-            sed -i.bak "s|{{INSTALL_PATH}}|$install_dir|g" "$alias_script"
-            rm -f "$alias_script.bak"
-            log_success "エイリアス設定スクリプトの変数を修正しました"
-        fi
-    fi
+    # エイリアス関連はサポート外（何もしない）
 }
 
-setup_alias() {
-    local install_dir="$1"
-    local shell_type="$2"
-    local config_file="$3"
-    
-    log_info "エイリアスを設定しています..."
-    
-    local alias_command="alias create-km='$install_dir/create_km.sh'"
-    local alias_comment="# KM Template Generator"
-    
-    # 既存のエイリアスをチェック・削除
-    if [ -f "$config_file" ]; then
-        if grep -q "alias create-km" "$config_file"; then
-            log_warning "既存のcreate-kmエイリアスを更新します"
-            # 既存のエイリアス行を削除
-            sed -i.bak '/alias create-km/d' "$config_file"
-            sed -i.bak '/# KM Template Generator/d' "$config_file"
-            rm -f "$config_file.bak"
-        fi
-        
-        # 新しいエイリアスを追加
-        echo "" >> "$config_file"
-        echo "$alias_comment" >> "$config_file"
-        echo "$alias_command" >> "$config_file"
-        
-        log_success "エイリアスを $config_file に追加しました"
-    else
-        log_warning "$config_file が見つかりません。手動でエイリアスを設定してください:"
-        log_info "  echo '$alias_command' >> $config_file"
-    fi
-}
+setup_alias() { :; }
 
 # =============================================================================
 # VS Code Tasks 設定
@@ -334,13 +296,7 @@ test_installation() {
         return 1
     fi
     
-    # シェルスクリプトのテスト
-    if [ -f "$install_dir/create_km.sh" ]; then
-        log_success "シェルスクリプトが利用可能です"
-    else
-        log_error "シェルスクリプトが見つかりません"
-        return 1
-    fi
+    # シェルスクリプトのテストは不要（Run Taskのみ）
     
     return 0
 }
