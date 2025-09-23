@@ -278,12 +278,21 @@ Flow/
 
 ### カスタムFlowディレクトリ
 
-デフォルトでは `Flow/YYYYMM/YYYY-MM-DD/requests/` に保存されます。スクリプトを修正してカスタマイズできます：
+デフォルトでは `Flow/YYYYMM/YYYY-MM-DD/requests/` に保存されます。保存先は `km_config.json` の `flow_base_path` で変更できます：
 
-```python
-# km_template_generator.py 内
-FLOW_BASE_DIR = "/your/custom/path/Flow"
+```json
+{
+  "flow_base_path": "/your/custom/path/Flow"
+}
 ```
+
+上記を設定すると出力先は `/your/custom/path/Flow/YYYYMM/YYYY-MM-DD/requests/` になります。
+
+### ファイル名規則
+
+- 形式: `HHMM_{依頼名}.km`
+- 例: `0936_AI依頼テスト.km`
+- 同一分・同一依頼名で重複する場合は `_2`, `_3` を付与（例: `0936_AI依頼テスト_2.km`）
 
 
 ## 📋 テンプレートカスタマイズ
