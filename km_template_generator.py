@@ -13,6 +13,7 @@ import subprocess
 import shutil
 from datetime import datetime
 from pathlib import Path
+import re
 
 
 class KMConfig:
@@ -218,26 +219,44 @@ def create_km_template(title="新しい依頼", output_path=None, config=None):
     if config is None:
         config = KMConfig()
     
+    # ファイル名安全化関数
+    def _sanitize_filename(name):
+        # パス区切りや制御文字を安全な文字へ置換
+        name = name.strip()
+        # 改行やタブを空白へ
+        name = re.sub(r"[\r\n\t]+", " ", name)
+        # Windows系禁止文字と一般的に問題が出やすい記号をアンダースコアへ
+        name = re.sub(r"[\\/:*?\"<>|]", "_", name)
+        # 連続する空白は1つに
+        name = re.sub(r"\s+", " ", name)
+        # 先頭末尾のドットは避ける
+        name = name.strip(". ") or "無題"
+        return name
+
     # 出力パスの決定
     if output_path is None:
         today = datetime.now().strftime("%Y-%m-%d")
         year_month = datetime.now().strftime("%Y%m")
+        hhmm = datetime.now().strftime("%H%M")
         
         flow_base_path = config.get('flow_base_path')
         if not flow_base_path:
             # フォールバック: スクリプトディレクトリ
             flow_base_path = "/Users/daisukemiyata/aipm_v3/Flow"
         
-        flow_dir = Path(flow_base_path) / year_month / today
+        # requests サブフォルダへ出力
+        flow_dir = Path(flow_base_path) / year_month / today / "requests"
         flow_dir.mkdir(parents=True, exist_ok=True)
         
-        # ファイル名の生成（重複回避）
-        base_name = "task"
-        counter = 1
-        while (flow_dir / f"{base_name}{counter}.km").exists():
-            counter += 1
-        
-        output_path = flow_dir / f"{base_name}{counter}.km"
+        # ファイル名の生成: HHMM_{依頼名}.km（重複時は _2, _3 ...）
+        safe_title = _sanitize_filename(title)
+        base_filename = f"{hhmm}_{safe_title}"
+        candidate = flow_dir / f"{base_filename}.km"
+        suffix = 2
+        while candidate.exists():
+            candidate = flow_dir / f"{base_filename}_{suffix}.km"
+            suffix += 1
+        output_path = candidate
     else:
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
